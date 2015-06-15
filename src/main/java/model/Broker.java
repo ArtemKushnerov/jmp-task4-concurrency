@@ -1,18 +1,38 @@
 package model;
 
-import model.enums.CurrencyType;
+import utilities.Exchanger;
 
 import java.math.BigDecimal;
 import java.util.List;
+
+import static utilities.RandomGenerator.getRandomFromZeroTo;
 
 /**
  * @author Artsiom Kushniarou
  * @since June 10, 2015
  */
 public class Broker {
-    private List<ExchangeRate> exchangeRates;
+    private Exchanger exchanger = new Exchanger();
 
-    public void makeDeal(Client clientThatWantsToSell, Client clientThatWantsToBuy, BigDecimal amount, CurrencyType currencyType) {
+    public void makeRandomTransfer(Client firstClient, Client secondClient) {
+        System.out.println("Starting a deal between client #" + firstClient.getId() +" and client #" + secondClient.getId());
+        Account fromAccount = chooseRandomAccount(firstClient);
+        CurrencyType fromCurrency = fromAccount.getCurrencyType();
+        BigDecimal amountToWithdraw = getRandomFromZeroTo(fromAccount.getCurrencyAmount());
+        fromAccount.withdrawMoney(amountToWithdraw);
 
+        Account toAccount = chooseRandomAccount(secondClient);
+        CurrencyType toCurrency = toAccount.getCurrencyType();
+
+        System.out.println("Get  " + amountToWithdraw + " " + fromCurrency + " from  client #" + firstClient.getId());
+        BigDecimal amountToDeposit = exchanger.exchange(amountToWithdraw, fromCurrency, toCurrency);
+        System.out.println("Give " + amountToDeposit + " " + toCurrency + " to  client #" + secondClient.getId());
+        toAccount.depositMoney(amountToDeposit);
     }
+
+    private Account chooseRandomAccount(Client client) {
+        List<Account> clientAccounts = client.getAccounts();
+        return clientAccounts.get((getRandomFromZeroTo(clientAccounts.size() - 1)));
+    }
+
 }

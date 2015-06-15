@@ -1,7 +1,5 @@
 package model;
 
-import model.enums.CurrencyType;
-
 import java.math.BigDecimal;
 
 /**
@@ -11,6 +9,16 @@ import java.math.BigDecimal;
 public class Account {
     private BigDecimal currencyAmount;
     private CurrencyType currencyType;
+
+    public void depositMoney(BigDecimal amountToDeposit) {
+        currencyAmount.add(amountToDeposit);
+    }
+
+    public void withdrawMoney(BigDecimal amountToWithdraw) {
+        if (currencyAmount.compareTo(amountToWithdraw) < 0){
+            currencyAmount.subtract(amountToWithdraw);
+        }
+    }
 
     public CurrencyType getCurrencyType() {
         return currencyType;
@@ -29,7 +37,10 @@ public class Account {
     }
 
     public Account(CurrencyType currencyType, BigDecimal currencyAmount) {
+        System.out.println("Account with " + currencyAmount + " " + currencyType + "created" );
         this.currencyType = currencyType;
         this.currencyAmount = currencyAmount;
     }
+
+
 }

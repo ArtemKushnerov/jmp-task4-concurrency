@@ -1,7 +1,5 @@
 package model;
 
-import model.enums.CurrencyType;
-
 import java.math.BigDecimal;
 
 /**
@@ -10,9 +8,26 @@ import java.math.BigDecimal;
  */
 public class ExchangeRate {
 
-    private final CurrencyType from;
-    private final CurrencyType to;
-    private final BigDecimal quotient;
+    private CurrencyType from;
+    private CurrencyType to;
+
+    public ExchangeRate() {
+
+    }
+
+    public BigDecimal getQuotient() {
+        return quotient;
+    }
+
+    public CurrencyType getTo() {
+        return to;
+    }
+
+    public CurrencyType getFrom() {
+        return from;
+    }
+
+    private BigDecimal quotient;
 
     public ExchangeRate(final CurrencyType us, final CurrencyType eur, final BigDecimal quotient) {
         this.from = us;
