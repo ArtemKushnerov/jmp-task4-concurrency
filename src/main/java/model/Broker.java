@@ -15,19 +15,23 @@ public class Broker {
     private Exchanger exchanger = new Exchanger();
 
     public void makeRandomTransfer(Client firstClient, Client secondClient) {
-        System.out.println("Starting a deal between client #" + firstClient.getId() +" and client #" + secondClient.getId());
+        System.out.println("Starting a deal between client #" + firstClient.getId() + " and client #" + secondClient.getId());
         Account fromAccount = chooseRandomAccount(firstClient);
-        CurrencyType fromCurrency = fromAccount.getCurrencyType();
         BigDecimal amountToWithdraw = getRandomFromZeroTo(fromAccount.getCurrencyAmount());
-        fromAccount.withdrawMoney(amountToWithdraw);
 
         Account toAccount = chooseRandomAccount(secondClient);
-        CurrencyType toCurrency = toAccount.getCurrencyType();
-
-        System.out.println("Get  " + amountToWithdraw + " " + fromCurrency + " from  client #" + firstClient.getId());
-        BigDecimal amountToDeposit = exchanger.exchange(amountToWithdraw, fromCurrency, toCurrency);
-        System.out.println("Give " + amountToDeposit + " " + toCurrency + " to  client #" + secondClient.getId());
-        toAccount.depositMoney(amountToDeposit);
+        synchronized (fromAccount) {
+            synchronized (toAccount) {
+                CurrencyType fromCurrency = fromAccount.getCurrencyType();
+                CurrencyType toCurrency = toAccount.getCurrencyType();
+                if (fromAccount.withdrawMoney(amountToWithdraw)) {
+                    System.out.println("Get  " + amountToWithdraw + " " + fromCurrency + " from  client #" + firstClient.getId());
+                    BigDecimal amountToDeposit = exchanger.exchange(amountToWithdraw, fromCurrency, toCurrency);
+                    System.out.println("Give " + amountToDeposit + " " + toCurrency + " to  client #" + secondClient.getId());
+                    toAccount.depositMoney(amountToDeposit);
+                }
+            }
+        }
     }
 
     private Account chooseRandomAccount(Client client) {

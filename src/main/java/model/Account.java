@@ -14,10 +14,12 @@ public class Account {
         currencyAmount.add(amountToDeposit);
     }
 
-    public void withdrawMoney(BigDecimal amountToWithdraw) {
-        if (currencyAmount.compareTo(amountToWithdraw) < 0){
+    public boolean withdrawMoney(BigDecimal amountToWithdraw) {
+        final boolean haveMoney = currencyAmount.compareTo(amountToWithdraw) > 0;
+        if (haveMoney){
             currencyAmount.subtract(amountToWithdraw);
         }
+        return haveMoney;
     }
 
     public CurrencyType getCurrencyType() {
