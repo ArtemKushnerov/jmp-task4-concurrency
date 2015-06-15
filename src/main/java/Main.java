@@ -20,21 +20,30 @@ public class Main {
 
     public static void main(String[] args) {
         //TODO make thread daemon that ensure that all is ok
-
-        List<Client> clients = new ArrayList<Client>();
+        final List<Client> clients = new ArrayList<Client>();
         List<Account> accounts = new ArrayList<Account>();
         initialize(clients, accounts);
-        Broker broker = new Broker();
-        int n = 0;
-        while (n < 10) {
-            int firstClientIndex = getRandomFromZeroTo(clients.size() - 1);
-            Client firstClient = clients.get(firstClientIndex);
+        final Broker broker = new Broker();
+        for (int i = 0; i < 20; i++) {
+            new Thread(new Runnable() {
+                public void run() {
+                    try {
+                        startDeals(clients, broker);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+        }
+    }
 
-            int secondClientIndex = getRandomFromZeroTo(clients.size() - 1);
-            Client secondClient = clients.get(secondClientIndex);
-
-            broker.makeRandomTransfer(firstClient, secondClient);
-            n++;
+    private static void startDeals(List<Client> clients, Broker broker) throws Exception {
+        while (true) {
+            Client firstClient = getRandomClient(clients);
+            Client secondClient = getRandomClient(clients);
+            if (firstClient != secondClient) {
+                broker.makeRandomTransfer(firstClient, secondClient);
+            }
         }
     }
 
@@ -45,12 +54,17 @@ public class Main {
             BigDecimal randomAmount = new BigDecimal(getRandomFromZeroTo(1000));
             accounts.add(new Account(randomCurrency, randomAmount));
         }
-        for (int i = 0; i < CLIENTS_NUMBER ; i++) {
+        for (int i = 0; i < CLIENTS_NUMBER; i++) {
             clients.add(new Client());
         }
         for (Account account : accounts) {
-            clients.get(getRandomFromZeroTo(clients.size() - 1)).addAccount(account);
+            final Client randomClient = getRandomClient(clients);
+            randomClient.addAccount(account);
         }
+    }
+
+    private static Client getRandomClient(List<Client> clients) {
+        return clients.get(getRandomFromZeroTo(clients.size() - 1));
     }
 
 }

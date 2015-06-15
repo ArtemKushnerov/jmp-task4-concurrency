@@ -1,9 +1,12 @@
 package model;
 
+import clojure.lang.LockingTransaction;
+import org.apache.log4j.Logger;
 import utilities.Exchanger;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import static utilities.RandomGenerator.getRandomFromZeroTo;
 
@@ -13,25 +16,26 @@ import static utilities.RandomGenerator.getRandomFromZeroTo;
  */
 public class Broker {
     private Exchanger exchanger = new Exchanger();
-
-    public void makeRandomTransfer(Client firstClient, Client secondClient) {
+    Logger logger = Logger.getLogger(Broker.class);
+    public void makeRandomTransfer(final Client firstClient, final Client secondClient) throws Exception {
         System.out.println("Starting a deal between client #" + firstClient.getId() + " and client #" + secondClient.getId());
-        Account fromAccount = chooseRandomAccount(firstClient);
-        BigDecimal amountToWithdraw = getRandomFromZeroTo(fromAccount.getCurrencyAmount());
+        final Account fromAccount = chooseRandomAccount(firstClient);
+        final BigDecimal amountToWithdraw = getRandomFromZeroTo(fromAccount.getCurrencyAmount());
 
-        Account toAccount = chooseRandomAccount(secondClient);
-        synchronized (fromAccount) {
-            synchronized (toAccount) {
+        final Account toAccount = chooseRandomAccount(secondClient);
+        LockingTransaction.runInTransaction(new Callable<Void>() {
+            public Void call() throws Exception {
                 CurrencyType fromCurrency = fromAccount.getCurrencyType();
                 CurrencyType toCurrency = toAccount.getCurrencyType();
                 if (fromAccount.withdrawMoney(amountToWithdraw)) {
-                    System.out.println("Get  " + amountToWithdraw + " " + fromCurrency + " from  client #" + firstClient.getId());
+                    logger.info("Get  " + amountToWithdraw + " " + fromCurrency + " from  client #" + firstClient.getId());
                     BigDecimal amountToDeposit = exchanger.exchange(amountToWithdraw, fromCurrency, toCurrency);
-                    System.out.println("Give " + amountToDeposit + " " + toCurrency + " to  client #" + secondClient.getId());
+                    logger.info("Give " + amountToDeposit + " " + toCurrency + " to  client #" + secondClient.getId());
                     toAccount.depositMoney(amountToDeposit);
                 }
+                return null;
             }
-        }
+        });
     }
 
     private Account chooseRandomAccount(Client client) {

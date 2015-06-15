@@ -1,5 +1,7 @@
 package model;
 
+import org.apache.log4j.Logger;
+
 import java.math.BigDecimal;
 
 /**
@@ -9,6 +11,7 @@ import java.math.BigDecimal;
 public class Account {
     private BigDecimal currencyAmount;
     private CurrencyType currencyType;
+    private Logger logger = Logger.getLogger(Account.class);
 
     public void depositMoney(BigDecimal amountToDeposit) {
         currencyAmount.add(amountToDeposit);
@@ -16,7 +19,7 @@ public class Account {
 
     public boolean withdrawMoney(BigDecimal amountToWithdraw) {
         final boolean haveMoney = currencyAmount.compareTo(amountToWithdraw) > 0;
-        if (haveMoney){
+        if (haveMoney) {
             currencyAmount.subtract(amountToWithdraw);
         }
         return haveMoney;
@@ -30,16 +33,8 @@ public class Account {
         return currencyAmount;
     }
 
-    public void setCurrencyAmount(BigDecimal currencyAmount) {
-        this.currencyAmount = currencyAmount;
-    }
-
-    public void setCurrencyType(CurrencyType currencyType) {
-        this.currencyType = currencyType;
-    }
-
     public Account(CurrencyType currencyType, BigDecimal currencyAmount) {
-        System.out.println("Account with " + currencyAmount + " " + currencyType + "created" );
+        logger.info("Account with " + currencyAmount + " " + currencyType + "created");
         this.currencyType = currencyType;
         this.currencyAmount = currencyAmount;
     }

@@ -11,10 +11,6 @@ public class ExchangeRate {
     private CurrencyType from;
     private CurrencyType to;
 
-    public ExchangeRate() {
-
-    }
-
     public BigDecimal getQuotient() {
         return quotient;
     }

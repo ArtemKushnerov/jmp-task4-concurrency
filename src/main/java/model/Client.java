@@ -1,5 +1,7 @@
 package model;
 
+import org.apache.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +12,7 @@ import java.util.List;
 public class Client {
     private static int clientsAtAll;
     private int id;
+    private Logger logger = Logger.getLogger(Client.class);
 
     private List<Account> accounts = new ArrayList<Account>();
 
@@ -17,19 +20,10 @@ public class Client {
         return accounts;
     }
 
-    public void setAccounts(List<Account> accounts) {
-        this.accounts = accounts;
-    }
-
-    public Client(Account... accounts) {
-        for (Account account : accounts) {
-            this.accounts.add(account);
-        }
-    }
 
     public Client() {
         id = ++clientsAtAll;
-        System.out.println("Client with id " + getId() + " created.");
+        logger.info("Client with id " + getId() + " created.");
     }
 
     public void addAccount(Account account) {
